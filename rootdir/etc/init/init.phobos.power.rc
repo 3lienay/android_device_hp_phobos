@@ -1,0 +1,8 @@
+on boot
+    # Configurações de energia específicas do Phobos
+    write /sys/class/power_supply/battery/charging_enabled 1
+    write /sys/class/backlight/panel/brightness 128
+
+on property:sys.boot_completed=1
+    # Ações pós-boot
+    exec u:r:system:s0 -- /system/bin/setprop phobos.power.ready 1

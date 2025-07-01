@@ -1,0 +1,16 @@
+# Permissões para o script
+allow init persist_file:file r_file_perms;
+allow init vendor_firmware_file:file { create write setattr };
+allow init vendor_exec:file { execute execute_no_trans };
+
+# Permissões para o update_mac.sh
+allow init persist_file:dir search;
+allow init persist_file:file { open read getattr };
+allow init vendor_firmware_file:dir { search write add_name };
+allow init vendor_firmware_file:file { create write setattr unlink };
+allow init vendor_exec:file { execute execute_no_trans };
+allow init bluetooth_persist_file:file { open read getattr };
+
+# Permissões adicionais para acesso ao sistema de arquivos
+allow init system_file:file { execute_no_trans };
+allow init shell_exec:file { execute_no_trans };

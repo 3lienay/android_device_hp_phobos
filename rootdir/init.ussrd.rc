@@ -1,0 +1,80 @@
+# Copyright (c) 2014 NVIDIA Corporation.  All Rights Reserved.
+# Unified Scaling Service for NVIDIA Tegra devices
+
+# Unified scaling setup (one-time initialization)
+service ussr_setup /system/bin/ussr_setup.sh
+    class main
+    user root
+    group root
+    oneshot
+    seclabel u:r:ussr_setup:s0
+
+on boot
+    # CPU cluster control
+    chown system system /sys/kernel/cluster/active
+    chmod 0640 /sys/kernel/cluster/active
+
+    # CPU load monitoring
+    chown system system /sys/devices/system/cpu/cpufreq/cpuload/cpu_load
+    chmod 0440 /sys/devices/system/cpu/cpufreq/cpuload/cpu_load
+    chown system system /sys/devices/system/cpu/cpufreq/cpuload/cpu_usage
+    chmod 0440 /sys/devices/system/cpu/cpufreq/cpuload/cpu_usage
+    chown system system /sys/devices/system/cpu/cpufreq/cpuload/enable
+    chmod 0664 /sys/devices/system/cpu/cpufreq/cpuload/enable
+
+    # CPU quiet governor
+    chown system system /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/no_lp
+    chmod 0664 /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/no_lp
+    chown system system /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/enable
+    chmod 0664 /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/enable
+    chown system system /sys/devices/system/cpu/cpuquiet/current_governor
+    chmod 0664 /sys/devices/system/cpu/cpuquiet/current_governor
+
+    # CPU information
+    chown system system /sys/devices/system/cpu/present
+    chmod 0444 /sys/devices/system/cpu/present
+
+    # Debug interfaces
+    chown system system /sys/kernel/debug/fps
+    chmod 0440 /sys/kernel/debug/fps
+    chown system system /sys/kernel/debug/clock/cpu_g/min
+    chmod 0440 /sys/kernel/debug/clock/cpu_g/min
+    chown system system /sys/kernel/debug/clock/c2bus/possible_rates
+    chmod 0440 /sys/kernel/debug/clock/c2bus/possible_rates
+    chown system system /sys/kernel/debug/clock/cpu_lp/max
+    chmod 0660 /sys/kernel/debug/clock/cpu_lp/max
+
+    # Display control
+    chown system system /sys/class/graphics/fb0/device/enable
+    chmod 0640 /sys/class/graphics/fb0/device/enable
+
+    # Throughput monitoring
+    chown system system /sys/devices/virtual/misc/tegra-throughput/fps
+    chmod 0440 /sys/devices/virtual/misc/tegra-throughput/fps
+
+# Create PHS data directory
+on post-fs-data
+    mkdir /data/misc/phs 0770 system system
+    restorecon /data/misc/phs
+
+# Unified scaling daemon
+service ussrd /vendor/bin/ussrd
+    user system
+    group system
+    class late_start
+    socket phsd stream 0666 system system
+    disabled
+    seclabel u:r:ussrd:s0
+
+# Unified scaling watchdog
+service usdwatchdog /vendor/bin/usdwatchdog --wait 30
+    user system
+    group system
+    class late_start
+    disabled
+    seclabel u:r:usdwatchdog:s0
+
+# Start services after boot completion
+on property:sys.boot_completed=1
+    start ussrd
+    start usdwatchdog

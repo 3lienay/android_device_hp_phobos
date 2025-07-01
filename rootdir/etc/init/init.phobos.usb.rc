@@ -1,0 +1,191 @@
+# /vendor/etc/init/init.phobos.usb.rc
+
+on early-init
+    # Inicializa o controlador USB do Tegra 4
+    setprop sys.usb.controller "70090000.usb"  # Caminho típico para Tegra 4
+    setprop sys.usb.configfs 1
+
+    # Cria estrutura de diretórios necessária
+    mkdir /config/usb_gadget/g1 0770 shell shell
+    mkdir /config/usb_gadget/g1/strings/0x409 0770
+
+on init
+    # Informações de serial e fabricante
+    write /config/usb_gadget/g1/strings/0x409/serialnumber ${ro.serialno}
+    write /config/usb_gadget/g1/strings/0x409/manufacturer "HP"
+    write /config/usb_gadget/g1/strings/0x409/product "Phobos"
+
+    # Configurações básicas
+    write /config/usb_gadget/g1/idVendor 0x03F0  # HP Vendor ID
+    write /config/usb_gadget/g1/idProduct 0x0FF2  # Produto genérico
+    write /config/usb_gadget/g1/bcdDevice 0x0100
+    write /config/usb_gadget/g1/bcdUSB 0x0200
+
+    # Configura funções USB
+    mkdir /config/usb_gadget/g1/functions/ffs.adb
+    mkdir /config/usb_gadget/g1/functions/mtp.gs0
+    mkdir /config/usb_gadget/g1/functions/ptp.gs1
+    mkdir /config/usb_gadget/g1/functions/rndis.gs2
+
+    # Configuração de rede RNDIS
+    write /config/usb_gadget/g1/functions/rndis.gs2/dev_addr "02:00:00:00:00:02"
+    write /config/usb_gadget/g1/functions/rndis.gs2/host_addr "02:00:00:00:00:01"
+
+    # Configuração do OS descriptor para RNDIS
+    write /config/usb_gadget/g1/os_desc/use 1
+    write /config/usb_gadget/g1/os_desc/b_vendor_code 0x1
+    write /config/usb_gadget/g1/os_desc/qw_sign "MSFT100"
+
+    # Cria configurações
+    mkdir /config/usb_gadget/g1/configs/b.1 0770
+    mkdir /config/usb_gadget/g1/configs/b.1/strings/0x409 0770
+    write /config/usb_gadget/g1/configs/b.1/MaxPower 500
+
+on boot
+    # Configuração padrão: MTP + ADB
+    setprop sys.usb.config mtp,adb
+    setprop persist.sys.usb.config mtp,adb
+
+# Configuração MTP
+on property:sys.usb.config=mtp
+    write /sys/class/android_usb/android0/enable 0
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "MTP"
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/mtp.gs0 /config/usb_gadget/g1/configs/b.1/f1
+    write /config/usb_gadget/g1/os_desc/use 0
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    write /sys/class/android_usb/android0/enable 1
+    setprop sys.usb.state ${sys.usb.config}
+
+# Configuração MTP + ADB
+on property:sys.usb.config=mtp,adb
+    write /sys/class/android_usb/android0/enable 0
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "MTP+ADB"
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/mtp.gs0 /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f2
+    write /config/usb_gadget/g1/os_desc/use 0
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+
+# Configuração RNDIS
+on property:sys.usb.config=rndis
+    write /sys/class/android_usb/android0/enable 0
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "RNDIS"
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/rndis.gs2 /config/usb_gadget/g1/configs/b.1/f1
+    write /config/usb_gadget/g1/os_desc/use 1
+    write /config/usb_gadget/g1/os_desc/b_vendor_code 0x1
+    write /config/usb_gadget/g1/os_desc/qw_sign "MSFT100"
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    write /sys/class/android_usb/android0/enable 1
+    setprop sys.usb.state ${sys.usb.config}
+
+# Configuração RNDIS + ADB
+on property:sys.usb.config=rndis,adb
+    write /sys/class/android_usb/android0/enable 0
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "RNDIS+ADB"
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/rndis.gs2 /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f2
+    write /config/usb_gadget/g1/os_desc/use 1
+    write /config/usb_gadget/g1/os_desc/b_vendor_code 0x1
+    write /config/usb_gadget/g1/os_desc/qw_sign "MSFT100"
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+
+# Configuração PTP
+on property:sys.usb.config=ptp
+    write /sys/class/android_usb/android0/enable 0
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "PTP"
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/ptp.gs1 /config/usb_gadget/g1/configs/b.1/f1
+    write /config/usb_gadget/g1/os_desc/use 0
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    write /sys/class/android_usb/android0/enable 1
+    setprop sys.usb.state ${sys.usb.config}
+
+# Configuração PTP + ADB
+on property:sys.usb.config=ptp,adb
+    write /sys/class/android_usb/android0/enable 0
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "PTP+ADB"
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/ptp.gs1 /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f2
+    write /config/usb_gadget/g1/os_desc/use 0
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+
+# Configuração somente ADB
+on property:sys.usb.config=adb
+    write /sys/class/android_usb/android0/enable 0
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "ADB"
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1
+    write /config/usb_gadget/g1/os_desc/use 0
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+
+# Serviço para inicialização do ConfigFS
+service usb_configfs_init /vendor/bin/init.usb.configfs.sh
+    class core
+    user root
+    group root
+    oneshot
+    seclabel u:r:usb_configfs_init:s0
+
+# Trigger para inicialização
+on property:sys.usb.configfs=1 && property:sys.usb.controller=*
+    start usb_configfs_init
+# --- ADICIONE APENAS ESTAS SEÇÕES ---
+
+# Configuração RNDIS
+on property:sys.usb.config=rndis
+    write /sys/class/android_usb/android0/enable 0
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "RNDIS"
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/rndis.gs2 /config/usb_gadget/g1/configs/b.1/f1
+    write /config/usb_gadget/g1/os_desc/use 1
+    write /config/usb_gadget/g1/os_desc/b_vendor_code 0x1
+    write /config/usb_gadget/g1/os_desc/qw_sign "MSFT100"
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    write /sys/class/android_usb/android0/enable 1
+    setprop sys.usb.state ${sys.usb.config}
+
+# Configuração RNDIS + ADB
+on property:sys.usb.config=rndis,adb
+    write /sys/class/android_usb/android0/enable 0
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "RNDIS+ADB"
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/rndis.gs2 /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f2
+    write /config/usb_gadget/g1/os_desc/use 1
+    write /config/usb_gadget/g1/os_desc/b_vendor_code 0x1
+    write /config/usb_gadget/g1/os_desc/qw_sign "MSFT100"
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+
+# Configuração PTP
+on property:sys.usb.config=ptp
+    write /sys/class/android_usb/android0/enable 0
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "PTP"
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    ln -s /config/usb_gadget/g1/functions/ptp.gs1 /config/usb_gadget/g1/configs/b.1/f1
+    write /config/usb_gadget/g1/os_desc/use 0
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    write /sys/class/android_usb/android0/enable 1
+    setprop sys.usb.state ${sys.usb.config}
+
+# Configuração PTP + ADB
+on property:sys.usb.config=ptp,adb
+    write /sys/class/android_usb/android

@@ -1,0 +1,22 @@
+# Global environment setup for LineageOS 15.1
+on init
+    # Standard Android paths
+    export PATH /sbin:/system/bin:/system/xbin:/product/bin:/vendor/bin
+    export ANDROID_BOOTLOGO 1
+    export ANDROID_ROOT /system
+    export ANDROID_ASSETS /system/app
+    export ANDROID_DATA /data
+    export ANDROID_STORAGE /storage
+    export ASEC_MOUNTPOINT /mnt/asec
+    export LOOP_MOUNTPOINT /mnt/obb
+    export PRODUCT /product
+    export VENDOR /vendor
+    
+    # Updated bootclasspath for Android 8.1
+    export BOOTCLASSPATH /system/framework/core-oj.jar:/system/framework/core-libart.jar:/system/framework/conscrypt.jar:/system/framework/okhttp.jar:/system/framework/bouncycastle.jar:/system/framework/apache-xml.jar:/system/framework/ext.jar:/system/framework/framework.jar:/system/framework/telephony-common.jar:/system/framework/voip-common.jar:/system/framework/ims-common.jar:/system/framework/org.apache.http.legacy.jar:/system/framework/android.test.base.jar
+    
+    # LineageOS system server classpath
+    export SYSTEMSERVERCLASSPATH /system/framework/services.jar:/system/framework/ethernet-service.jar:/system/framework/wifi-service.jar:/system/framework/org.lineageos.platform.jar:/system/framework/org.lineageos.hardware.jar
+    
+    # Native library preload
+    export LD_PRELOAD libsigchain.so

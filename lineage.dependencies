@@ -1,0 +1,32 @@
+[
+  {
+    "repository": "android_device_nvidia_tegra-common",
+    "target_path": "device/nvidia/tegra-common",
+    "remote": "github",
+    "branch": "lineage-15.1"
+  },
+  {
+    "repository": "android_device_hp_phobos",
+    "target_path": "device/hp/phobos",
+    "remote": "github",
+    "branch": "lineage-15.1"
+  },
+  {
+    "repository": "proprietary_vendor_nvidia",
+    "target_path": "vendor/nvidia",
+    "remote": "github",
+    "branch": "lineage-15.1"
+  },
+  {
+    "repository": "proprietary_vendor_hp_phobos",
+    "target_path": "vendor/hp/phobos",
+    "remote": "github",
+    "branch": "lineage-15.1"
+  },
+  {
+    "repository": "android_kernel_hp_phobos",
+    "target_path": "kernel/hp/phobos",
+    "remote": "github",
+    "branch": "lineage-15.1"
+  }
+]

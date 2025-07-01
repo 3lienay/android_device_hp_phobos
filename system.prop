@@ -1,0 +1,35 @@
+drm.service.enabled=true
+ro.opengles.version = 131072
+wifi.interface=wlan0
+ap.interface=wlan0
+ro.sf.lcd_density=160
+
+# from dalmore, check nvidia
+persist.tegra.nvmmlite = 1
+
+# use glcomposer as the default compositor
+persist.tegra.compositor=glcomposer
+
+# disable EGL_BUFFER_PRESERVED extension for OpenGLRenderer
+debug.hwui.render_dirty_regions=false
+
+# Root access control:
+# 0 = disabled, 1 = apps only, 2 = ADB only, 3 = enabled
+persist.sys.root_access=0
+
+# hwui parameters
+ro.hwui.texture_cache_size=48.0
+ro.hwui.layer_cache_size=32.0
+ro.hwui.gradient_cache_size=0.8
+ro.hwui.path_cache_size=24.0
+ro.hwui.shape_cache_size=3.0
+ro.hwui.drop_shadow_cache_size=4.0
+ro.hwui.text_small_cache_width=1024
+ro.hwui.text_small_cache_height=512
+ro.hwui.text_large_cache_width=2048
+ro.hwui.text_large_cache_height=1024
+ro.hwui.texture_cache_flushrate=0.6
+
+# don't preload OpenGL in Zygote, the Tegra drivers do not like it
+ro.zygote.disable_gl_preload=true
+ro.hardware.egl = tegra

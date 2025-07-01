@@ -1,0 +1,165 @@
+# Inherit from the common stuff
+include device/hp/phobos/BoardConfigCommon.mk
+include device/nvidia/tegra-common/BoardConfigTegra.mk  # Caminho atualizado
+USE_CLANG_PLATFORM_BUILD := true
+TARGET_USE_CLANG := true
+# Define o init principal
+TARGET_INIT_VENDOR_LIB := //device/hp/phobos:libinit_dalmore
+TARGET_LD_SHIM_LIBS += /system/lib/libcnefeatureconfig.so|libc++_shared.so
+TARGET_IGNORE_MISSING_CNE := true
+# Define o fstab para recovery
+TARGET_RECOVERY_FSTAB := device/hp/phobos/rootdir/fstab.phobos
+TARGET_RECOVERY_INITRC := device/hp/phobos/rootdir/init.recovery.phobos.rc
+
+# Define o ueventd
+TARGET_UEVENTD_RULES := device/hp/phobos/rootdir/ueventd.dalmore.rc
+BOARD_USES_NVIDIA_SHIELD_T40 := true
+
+# Platform
+TARGET_ARCH := arm
+TARGET_BOARD_PLATFORM := tegra4
+TARGET_POWERHAL_VARIANT := tegra4
+TARGET_TEGRA_VERSION := t114
+TARGET_CPU_ABI := armeabi-v7a
+TARGET_CPU_ABI2 := armeabi
+ARCH_ARM_HAVE_TLS_REGISTER := true
+TARGET_ARCH_VARIANT := armv7-a-neon
+TARGET_CPU_VARIANT := cortex-a15
+TARGET_CPU_VARIANT_RUNTIME := cortex-a15
+
+# Kernel
+TARGET_KERNEL_SOURCE := kernel/hp/phobos
+TARGET_KERNEL_CONFIG := phobos_defconfig
+BOARD_KERNEL_IMAGE_NAME := zImage
+#TARGET_PREBUILT_KERNEL := device/hp/phobos/prebuilts/kernel
+
+# Boot image
+BOARD_BOOTIMG_HEADER_VERSION := 0
+BOARD_BOOTIMAGE_PARTITION_SIZE := 0x01000000
+BOARD_KERNEL_BASE := 0x10000000
+BOARD_KERNEL_PAGESIZE := 2048
+BOARD_RAMDISK_OFFSET := 0x01000000
+BOARD_SECOND_OFFSET := 0x00f00000
+BOARD_TAGS_OFFSET := 0x00000100
+BOARD_KERNEL_TAGS_OFFSET := 0x00000100
+BOARD_FLASH_BLOCK_SIZE := 131072
+
+# Indique que não há partição vendor separada
+BOARD_USES_VENDORIMAGE := false
+BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := none
+
+# Partições - VALORES FÍSICOS REAIS
+BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608        # 8MB
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 16777216   # 16MB
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 805306368    # 768MB
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 5385142272 # ~5.02GB
+BOARD_CACHEIMAGE_PARTITION_SIZE := 1073741824    # 1GB
+BOARD_FLASH_BLOCK_SIZE := 4096
+
+# Sistemas de arquivos
+BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
+TARGET_USERIMAGES_USE_EXT4 := true
+TARGET_COPY_OUT_VENDOR := vendor
+
+# Device Tree Blob
+BOARD_PREBUILT_DTBIMAGE := device/hp/phobos/dtb.img
+BOARD_DTBIMAGE_PARTITION_SIZE := 4194304
+BOARD_INCLUDE_DTB_IN_BOOTIMG := false
+
+# Recovery
+TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+BOARD_HAS_NO_SELECT_BUTTON := true
+BOARD_USE_CUSTOM_RECOVERY_FONT := \"roboto_15x24.h\"
+
+# SELinux
+BOARD_USES_SEPOLICY := true
+BOARD_SEPOLICY_DIRS := device/nvidia/shield-common/sepolicy
+
+# Security
+TARGET_SYSTEM_PROP += device/hp/phobos/system.prop
+
+# GPU and graphics
+USE_OPENGL_RENDERER := true
+TARGET_USES_HWC2 := true
+BOARD_GPU_DRIVERS := tegra
+NUM_FRAMEBUFFER_SURFACE_BUFFERS := 2
+SF_PRIMARY_DISPLAY_ORIENTATION := 0
+TARGET_USES_ION := true
+TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
+BOARD_EGL_WORKAROUND_BUG_10194508 := true
+BOARD_EGL_CFG := vendor/hp/phobos/proprietary/vendor/lib/egl/egl.cfg  # Caminho atualizado
+OVERRIDE_RS_DRIVER := libnvRS_driver.so
+BOARD_EGL_NEEDS_FNW := true
+TARGET_ADDITIONAL_GRALLOC_10_USAGE_BITS := 0x2000U
+
+# Audio
+USE_XML_AUDIO_POLICY_CONF := 1
+BOARD_USES_GENERIC_AUDIO := false
+BOARD_USES_ALSA_AUDIO := true
+BOARD_USES_TINY_ALSA_AUDIO := true
+
+# Bluetooth
+BOARD_HAVE_BLUETOOTH := true
+BOARD_HAVE_BLUETOOTH_TI := true
+BOARD_HAVE_BLUETOOTH_BCM := true
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := vendor/nvidia/shield  # Caminho atualizado
+
+# Camera
+USE_CAMERA_STUB := false
+TARGET_HAS_LEGACY_CAMERA_HAL1 := true
+TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
+
+# Wi-Fi
+BOARD_WLAN_DEVICE := bcmdhd
+WIFI_DRIVER_MODULE_PATH := "/system/lib/modules/dhd.ko"
+WIFI_DRIVER_MODULE_NAME := "dhd"
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
+BOARD_HOSTAPD_PRIVATE_LIB   := lib_driver_cmd_bcmdhd
+WIFI_DRIVER_FW_PATH_PARAM   := "/sys/module/bcmdhd/parameters/firmware_path"
+WIFI_DRIVER_FW_PATH_STA     := "/vendor/firmware/fw_bcmdhd.bin"
+WIFI_DRIVER_FW_PATH_AP      := "/vendor/firmware/fw_bcmdhd_apsta.bin"
+
+# Misc
+TARGET_NO_RADIOIMAGE := true
+TARGET_NO_BOOTLOADER := true
+TARGET_NO_KERNEL := false
+
+# Partitions
+BOARD_HAS_LARGE_FILESYSTEM := true
+BOARD_BUILD_SYSTEM_ROOT_IMAGE := false
+
+# Charger
+BOARD_CHARGER_ENABLE_SUSPEND := true
+BOARD_CHARGER_DISABLE_INIT_BLANK := true
+
+# Gerenciamento de Energia
+TARGET_POWERHAL_VARIANT := tegra
+
+# Bootloader
+TARGET_BOOTLOADER_BOARD_NAME := phobos
+
+# Additional includes from ShieldTablet
+BOARD_PROPERTY_OVERRIDES_SPLIT_ENABLED := true
+TARGET_ENABLE_MEDIASERVER_64 := false
+
+# Enable APEX
+TARGET_SUPPORTS_64_BIT_APPS := false
+TARGET_SUPPORTS_32_BIT_APPS := true
+
+# Zygote
+TARGET_CPU_VARIANT := cortex-a15
+TARGET_CPU_SMP := true
+
+# Graphics + Vulkan
+TARGET_USES_GRALLOC1 := false
+
+# VNDK
+BOARD_VNDK_VERSION := current
+
+# Debugging
+TARGET_COMPILE_WITH_MSM_KERNEL := false
+BUILD_BROKEN_DUP_RULES := true
+BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
+HOST_GLOBAL_CFLAGS_x86 := -m32 -march=i686 -msse3 -mfpmath=sse

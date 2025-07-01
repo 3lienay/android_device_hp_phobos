@@ -1,0 +1,5 @@
+service healthd /sbin/healthd -n
+    class late_start
+    critical
+    seclabel u:r:healthd:s0
+    group root system wakelock

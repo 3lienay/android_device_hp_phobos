@@ -1,0 +1,38 @@
+# Copyright (c) 2011-2013 NVIDIA Corporation.  All Rights Reserved.
+#
+# NVIDIA Corporation and its licensors retain all intellectual property and
+# proprietary rights in and to this software and related documentation.  Any
+# use, reproduction, disclosure or distribution of this software and related
+# documentation without an express license agreement from NVIDIA Corporation
+# is strictly prohibited.
+
+on post-fs-data
+    # HDCP SRM configuration
+    setprop hdcp.srm.path "/vendor/etc/hdcpsrm"  # Changed to vendor partition
+    setprop hdcp1x.srm.name "hdcp1x.srm"
+    setprop hdcp2x.srm.name "hdcp2x.srm"
+    setprop hdcp2xtest.srm.name "hdcp2xtest.srm"
+    setprop vendor.nvidia.hdcp.supported 1  # Added vendor property
+
+    # Create HDCP SRM directory with secure permissions
+    mkdir /vendor/etc/hdcpsrm 0750 root system
+    restorecon_recursive /vendor/etc/hdcpsrm
+
+on boot
+    # Initialize HDCP services
+    exec_start hdcp1x_init
+    exec_start hdcp2x_init
+
+service hdcp1x_init /vendor/bin/hdcp1x_init
+    class main
+    user root
+    group system
+    oneshot
+    seclabel u:r:hdcp1x_init:s0
+
+service hdcp2x_init /vendor/bin/hdcp2x_init
+    class main
+    user root
+    group system
+    oneshot
+    seclabel u:r:hdcp2x_init:s0

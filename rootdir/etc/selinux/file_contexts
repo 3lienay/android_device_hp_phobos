@@ -1,0 +1,4 @@
+# Contextos básicos para Tegra 4
+/dev/tegra.*                  u:object_r:device:s0
+/sys/devices/platform/tegra.*  u:object_r:sysfs_tegra:s0
+/vendor/bin/thermal_monitor    u:object_r:thermal_monitor_exec:s0

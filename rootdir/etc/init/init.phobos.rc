@@ -1,0 +1,27 @@
+import /init.${ro.hardware}.rc
+import /vendor/etc/init/init.tegra.rc
+import /vendor/etc/init/init.phobos.usb.rc
+import /vendor/etc/init/init.phobos.power.rc
+import /vendor/etc/init/init.trace.rc
+
+on early-init
+    # Configurações específicas do Phobos
+    symlink /dev/block/platform/sdhci-tegra.3/by-name/APP /dev/block/system
+    symlink /dev/block/platform/sdhci-tegra.3/by-name/UDA /dev/block/userdata
+
+on fs
+    mount_all /fstab.dalmore
+
+service phobos-hw-service /vendor/bin/hw/phobos-hal
+    class main
+    user system
+    group system
+    seclabel u:r:hal_phobos:s0
+
+on early-fs
+    # Garante que /system/vendor existe
+    mkdir /system/vendor 0755 root root
+
+on post-fs
+    # Executa o bind mount
+    mount none /vendor bind /system/vendor

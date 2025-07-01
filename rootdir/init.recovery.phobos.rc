@@ -1,0 +1,88 @@
+# /init.recovery.phobos.rc
+
+on early-init
+    # Inicializa o logger do recovery
+    start recovery_log
+    
+    # Configurações iniciais
+    export TMPDIR /tmp
+    export ANDROID_ROOT /system
+    export ANDROID_DATA /data
+    export EXTERNAL_STORAGE /sdcard
+
+    # Permissões para /tmp
+    mkdir /tmp 0770
+    mount tmpfs tmpfs /tmp
+
+on init
+    # Configura o caminho
+    export PATH /sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin
+    
+    # Configura o LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH /sbin
+    
+    # Configurações de console
+    console /dev/tty0
+    setprop ro.crypto.state "unencrypted"  # Modificado para Tegra 4
+
+    # Monta partições básicas
+    mount proc /proc proc
+    mount sysfs /sys sysfs
+    mount tmpfs /tmp tmpfs
+
+    # Monta partições de sistema
+    mount /system
+    mount /vendor
+    mount /data
+
+    # Habilita ADB
+    setprop service.adb.root 1
+    setprop sys.usb.config adb
+
+    # Inicia o serviço de recovery
+    start recovery
+
+# Serviço de logging
+service recovery_log /sbin/recovery_log
+    class main
+    user root
+    group root
+    seclabel u:r:recovery:s0
+
+# Serviço principal de recovery
+service recovery /sbin/recovery
+    class main
+    seclabel u:r:recovery:s0
+
+# Serviço de ADB no recovery
+service adbd /sbin/adbd --root_seclabel=u:r:su:s0
+    class core
+    socket adbd stream 660 system system
+    disabled
+    seclabel u:r:adbd:s0
+
+on property:sys.usb.config=adb
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 0x03F0  # HP Vendor ID
+    write /sys/class/android_usb/android0/idProduct 0x0FF6  # Recovery ADB ID
+    write /sys/class/android_usb/android0/functions adb
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+
+on property:sys.usb.config=none
+    write /sys/class/android_usb/android0/enable 0
+    stop adbd
+
+# Configurações específicas do Tegra para recovery
+on boot
+    # Configurações de display
+    write /sys/class/graphics/fb0/format RGB565
+    write /sys/class/graphics/fb0/bits_per_pixel 16
+    
+    # Configurações de energia
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
+    write /sys/devices/platform/host1x/gr3d/min_freq 72000000
+
+# Fstab para recovery
+on fs
+    mount_all /fstab.phobos

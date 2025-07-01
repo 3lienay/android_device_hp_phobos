@@ -1,0 +1,48 @@
+# /vendor/etc/init/init.tegra.rc
+on early-init
+    # Configurações iniciais de energia
+    write /sys/module/cpuidle/parameters/lp2_in_idle 0
+    write /sys/module/cpuidle/parameters/power_down_in_idle 0
+
+    # Configurações de clock mínimos
+    write /sys/devices/platform/host1x/gr3d/min_freq 72000000  # 72 MHz
+    write /sys/devices/platform/host1x/gr3d/max_freq 520000000 # 520 MHz (Tegra 4 typical)
+
+on boot
+    # Configurações de GPU
+    write /sys/devices/platform/host1x/gr3d/enable_3d_scaling 1
+    write /sys/devices/platform/host1x/gr3d/clock_rate 520000000
+    
+    # Configurações de CPU
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 475000
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1500000
+    
+    # Configurações de memória
+    write /sys/kernel/debug/tegra_hv/mem_edp 0
+    
+    # Configurações térmicas
+    write /sys/class/thermal/thermal_zone0/trip_point_0_temp 85000
+    write /sys/class/thermal/thermal_zone0/trip_point_1_temp 95000
+    write /sys/class/thermal/thermal_zone0/policy step_wise
+    
+    # Configurações de áudio
+    write /sys/devices/platform/tegra30-i2s.0/codec-control/avp_audio_rate 48000
+
+on charger
+    # Configurações de baixo consumo durante carregamento
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 475000
+    write /sys/devices/platform/host1x/gr3d/clock_rate 72000000
+    write /sys/devices/platform/host1x/gr3d/min_freq 0
+    write /sys/devices/platform/host1x/gr3d/max_freq 0
+
+on property:sys.powerctl=*
+    # Configurações antes de reiniciar/desligar
+    write /sys/devices/platform/host1x/gr3d/min_freq 0
+    write /sys/devices/platform/host1x/gr3d/max_freq 0
+
+# Serviço de monitoramento térmico
+service thermal_monitor /system/bin/thermal_monitor
+    class main
+    user system
+    group system
+    seclabel u:r:thermal_monitor:s0

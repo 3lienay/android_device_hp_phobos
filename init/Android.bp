@@ -1,0 +1,12 @@
+cc_library_shared {
+    name: "libinit_dalmore",
+    srcs: ["init_dalmore.cpp"],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}

@@ -1,0 +1,100 @@
+# Dispositivos Tegra
+/dev/tegra_*                  root       system
+/dev/nvhost-*                 root       system
+/dev/nvmap                    root       system
+/dev/ttyACM*                  root       radio
+
+# Componentes gráficos
+/dev/graphics/fb*             system     graphics
+
+# Tegra-specific devices
+/dev/tegra-throughput    0666    system  system
+/dev/knvmap              0660    system  system
+/dev/nvmap               0666    system  system
+/dev/ion                 0666    system  system
+
+# Tegra AVP/media devices
+/dev/tegra_avp           0660    media   media
+/dev/tegra_avpchannel    0660    media   media
+/dev/tegra_audio_avpchannel  0660 media  media
+/dev/tegra_rpc           0660    media   media
+/dev/tegra_sema          0660    media   media
+/dev/tegra_mediaserver   0660    media   media
+
+# Camera devices (Tegra-specific and generic)
+/dev/tegra_camera        0660    media   camera
+/dev/camera*             0660    media   camera
+/dev/focuser*            0660    media   camera
+/dev/torch*              0660    media   camera
+/dev/video[0-9]*         0660    media   camera
+/dev/mipi-cal            0660    media   camera
+
+# Specific camera sensors
+/dev/ov2710              0660    media   camera
+/dev/imx135              0660    media   camera
+/dev/imx091              0660    media   camera
+/dev/ar0833              0660    media   camera
+/dev/dw9718              0660    media   camera
+/dev/ov9772              0660    media   camera
+/dev/ov9740              0660    media   camera
+
+# Audio devices
+/dev/spdif*              0660    system  audio
+
+# Display controllers
+/dev/tegra_dc*           0660    system  system
+
+# HDCP support
+/dev/nvhdcp[0-1]         0666    system  system
+
+# NVHOST devices
+/dev/nvhost-ctrl         0666    root    root
+/dev/nvhost-display      0666    root    root
+/dev/nvhost-dsi          0666    root    root
+/dev/nvhost-gr2d         0666    root    root
+/dev/nvhost-gr3d         0666    root    root
+/dev/nvhost-isp          0666    root    root
+/dev/nvhost-mpe          0666    root    root
+/dev/nvhost-msenc        0666    media   camera
+/dev/nvhost-tsec         0666    root    root
+/dev/nvhost-vi           0666    root    root
+
+# Serial communication
+/dev/ttyACM*             0660    radio   system
+/dev/ttyACM2             0660    radio   log
+/dev/ttyHS1              0664    root    system
+/dev/ttyHS2              0660    bluetooth bluetooth
+
+# Security/trustzone
+/dev/tf_driver           0666    system  system
+
+# FM Radio
+/dev/radio               0666    system  radio
+
+# Sensor devices
+/dev/mpu                 0640    system  system
+/dev/mpuirq              0640    system  system
+/dev/accelirq            0640    system  system
+/dev/timerirq            0640    system  system
+/dev/raydium_ts          0777    system  system
+
+# CPU frequency control
+/dev/cpu_freq_min        0660    system  system
+/dev/cpu_freq_max        0660    system  system
+/dev/min_online_cpus     0660    system  system
+/dev/max_online_cpus     0660    system  system
+
+# Timer information
+/dev/timerinfo           0444    system  system
+
+# Additional Android 8.1 requirements
+/dev/socket/installd     0660    root    installd
+/dev/socket/vold         0660    root    vold
+/dev/socket/debuggerd    0660    root    debuggerd
+
+# GPU memory
+/dev/ump                 0666    root    root
+/dev/mali                0666    root    root
+
+# Power management
+/dev/tegra_pm            0660    system  system

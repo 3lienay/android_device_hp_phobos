@@ -1,0 +1,1 @@
+echo -n '' > device/hp/phobos/libnvos/libnvos.so
