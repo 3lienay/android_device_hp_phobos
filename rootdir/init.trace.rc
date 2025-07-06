@@ -1,0 +1,46 @@
+## Kernel tracing permissions for Linux 3.1 - LineageOS 15.1 ##
+
+on early-boot
+    # Trace marker permissions
+    chmod 0222 /sys/kernel/debug/tracing/trace_marker
+
+    # Control files permissions
+    chown root shell /sys/kernel/debug/tracing/trace_clock
+    chown root shell /sys/kernel/debug/tracing/buffer_size_kb
+    chown root shell /sys/kernel/debug/tracing/tracing_on
+    chown root shell /sys/kernel/debug/tracing/options/overwrite
+    chown root shell /sys/kernel/debug/tracing/options/print-tgid
+    
+    chmod 0664 /sys/kernel/debug/tracing/trace_clock
+    chmod 0664 /sys/kernel/debug/tracing/buffer_size_kb
+    chmod 0664 /sys/kernel/debug/tracing/tracing_on
+    chmod 0664 /sys/kernel/debug/tracing/options/overwrite
+    chmod 0664 /sys/kernel/debug/tracing/options/print-tgid
+
+    # Power events tracing
+    chown root shell /sys/kernel/debug/tracing/events/power/cpu_frequency/enable
+    chown root shell /sys/kernel/debug/tracing/events/power/cpu_idle/enable
+    chown root shell /sys/kernel/debug/tracing/events/power/clock_set_rate/enable
+    
+    chmod 0664 /sys/kernel/debug/tracing/events/power/cpu_frequency/enable
+    chmod 0664 /sys/kernel/debug/tracing/events/power/cpu_idle/enable
+    chmod 0664 /sys/kernel/debug/tracing/events/power/clock_set_rate/enable
+
+    # Scheduler events tracing
+    chown root shell /sys/kernel/debug/tracing/events/sched/sched_switch/enable
+    chown root shell /sys/kernel/debug/tracing/events/sched/sched_wakeup/enable
+    
+    chmod 0664 /sys/kernel/debug/tracing/events/sched/sched_switch/enable
+    chmod 0664 /sys/kernel/debug/tracing/events/sched/sched_wakeup/enable
+
+    # CPU governor events
+    chown root shell /sys/kernel/debug/tracing/events/cpufreq_interactive/enable
+    chmod 0664 /sys/kernel/debug/tracing/events/cpufreq_interactive/enable
+
+    # Trace log access
+    chown root shell /sys/kernel/debug/tracing/trace
+    chmod 0660 /sys/kernel/debug/tracing/trace
+
+    # Limit buffer size for better performance on older kernels
+    write /sys/kernel/debug/tracing/buffer_size_kb 512
+    write /sys/kernel/debug/tracing/events/enable 0

@@ -1,4 +1,59 @@
-# Contextos básicos para Tegra 4
-/dev/tegra.*                  u:object_r:device:s0
+# --- Núcleo do sistema ---
+/init                       u:object_r:init_exec:s0
+/sbin(/.*)?                u:object_r:rootfs:s0
+/system/bin(/.*)?          u:object_r:system_file:s0
+/system/xbin(/.*)?         u:object_r:system_file:s0
+/vendor/bin(/.*)?          u:object_r:vendor_file:s0
+/vendor/lib(/.*)?          u:object_r:vendor_file:s0
+/vendor/lib64(/.*)?        u:object_r:vendor_file:s0
+/data(/.*)?                u:object_r:system_data_file:s0
+/cache(/.*)?               u:object_r:cache_file:s0
+/metadata(/.*)?            u:object_r:metadata_file:s0
+/mnt(/.*)?                 u:object_r:mnt_media_rw_file:s0
+
+# --- Blocos e dispositivos ---
+/dev(/.*)?                 u:object_r:device:s0
+/dev/block(/.*)?           u:object_r:block_device:s0
+/dev/tty.*                 u:object_r:serial_device:s0
+/dev/null                  u:object_r:null_device:s0
+/dev/zero                  u:object_r:zero_device:s0
+/dev/random                u:object_r:random_device:s0
+/dev/urandom               u:object_r:urandom_device:s0
+
+# --- File systems ---
+/proc(/.*)?                u:object_r:proc:s0
+/sys(/.*)?                 u:object_r:sysfs:s0
 /sys/devices/platform/tegra.*  u:object_r:sysfs_tegra:s0
-/vendor/bin/thermal_monitor    u:object_r:thermal_monitor_exec:s0
+/sys/firmware(/.*)?        u:object_r:sysfs_firmware:s0
+
+# --- Partições padrão ---
+/fstab.dalmore             u:object_r:system_file:s0
+/fstab.phobos              u:object_r:system_file:s0
+
+# --- Tegra específico ---
+/dev/tegra.*               u:object_r:device:s0
+/dev/ttyHS.*               u:object_r:serial_device:s0
+
+# --- Binários especiais ---
+/system/bin/thermal-engine   u:object_r:thermalengine_exec:s0
+/vendor/bin/thermal_monitor  u:object_r:thermal_monitor_exec:s0
+/system/bin/logcat           u:object_r:shell_exec:s0
+/system/bin/sh               u:object_r:shell_exec:s0
+/system/bin/su               u:object_r:su_exec:s0
+
+# --- Serviços base Android ---
+/system/bin/app_process      u:object_r:zygote_exec:s0
+/system/bin/app_process32    u:object_r:zygote_exec:s0
+/system/bin/app_process64    u:object_r:zygote_exec:s0
+/system/bin/servicemanager   u:object_r:servicemanager_exec:s0
+/system/bin/vold             u:object_r:vold_exec:s0
+/system/bin/netd             u:object_r:netd_exec:s0
+/system/bin/zygote           u:object_r:zygote_exec:s0
+
+# --- Recovery ---
+/sbin/recovery               u:object_r:recovery_exec:s0
+
+# --- SuperSU ou Superuser ---
+/system/xbin/daemonsu        u:object_r:su_exec:s0
+/system/xbin/su              u:object_r:su_exec:s0
+/system/bin/su               u:object_r:su_exec:s0

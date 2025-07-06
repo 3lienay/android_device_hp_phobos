@@ -1,36 +1,24 @@
-# Copyright (C) 2012 The Android Open Source Project
-#
-# IMPORTANT: Do not create world writable files or directories.
-# This is a common source of Android security bugs.
-#
+# Android init.rc for LineageOS 15.1 (Android 8.1)
 
 import /init.environ.rc
 import /init.usb.rc
 import /init.${ro.hardware}.rc
 import /init.${ro.zygote}.rc
 import /init.trace.rc
-# Include LineageOS extras
-import /init.lineage.rc
+import /init.lineage.rc  # LineageOS customizations
+import /init.lineage.superuser.rc #LineageOS customizations
 
 on early-init
-    # Set init and its forked children's oom_adj.
     write /proc/1/oom_score_adj -1000
-
-    # Apply strict SELinux checking
     write /sys/fs/selinux/checkreqprot 0
-
-    # Set the security context for init
     setcon u:r:init:s0
     restorecon /adb_keys
-
     start ueventd
     mkdir /mnt 0775 root system
 
 on init
     sysclktz 0
     loglevel 3
-
-    # Backward compatibility
     symlink /system/etc /etc
     symlink /sys/kernel/debug /d
     symlink /system/vendor /vendor
@@ -39,119 +27,42 @@ on init
     mkdir /acct
     mount cgroup none /acct cpuacct
     mkdir /acct/uid
-
-    mkdir /sys/fs/cgroup
     mount tmpfs none /sys/fs/cgroup mode=0750,uid=0,gid=1000
-    mkdir /sys/fs/cgroup/memory
+    mkdir /sys/fs/cgroup/memory 0750 root system
     mount cgroup none /sys/fs/cgroup/memory memory
     write /sys/fs/cgroup/memory/memory.move_charge_at_immigrate 1
-    chown root system /sys/fs/cgroup/memory/tasks
-    chmod 0660 /sys/fs/cgroup/memory/tasks
 
-    # Create base directories
+    # Filesystem setup
     mkdir /system
     mkdir /data 0771 system system
     mkdir /cache 0770 system cache
-    mkdir /config 0500 root root
-
-    # Storage setup
     mkdir /mnt/shell 0700 shell shell
+    mkdir /mnt/media_rw 0700 media_rw media_rw
     mkdir /storage 0751 root sdcard_r
     mkdir /mnt/secure 0700 root root
     mkdir /mnt/asec 0700 root system
     mount tmpfs tmpfs /mnt/asec mode=0755,gid=1000
+    mkdir /mnt/obb 0700 root system
+    mount tmpfs tmpfs /mnt/obb mode=0755,gid=1000
 
-    # Memory control group
-    mkdir /dev/memcg 0700 root system
-    mount cgroup none /dev/memcg memory
-
-    # Kernel settings
+    # Kernel parameters
     write /proc/sys/kernel/panic_on_oops 1
     write /proc/sys/kernel/randomize_va_space 2
-    write /proc/sys/kernel/kptr_restrict 2
     write /proc/sys/vm/mmap_min_addr 32768
+    write /proc/sys/net/ipv4/ping_group_range "0 2147483647"
 
-on boot
-    # Network init
-    ifup lo
-    hostname localhost
-    domainname localdomain
+    # CPU control groups
+    mkdir /dev/cpuctl
+    mount cgroup none /dev/cpuctl cpu
+    write /dev/cpuctl/cpu.shares 1024
+    mkdir /dev/cpuctl/bg_non_interactive
+    write /dev/cpuctl/bg_non_interactive/cpu.shares 52
 
-    # Memory management
-    write /proc/sys/vm/overcommit_memory 1
-    write /proc/sys/vm/min_free_order_shift 4
+    # Network setup
+    chown root net_bw_acct /proc/net/xt_qtaguid/ctrl
+    chmod 0644 /dev/xt_qtaguid
+    mkdir /dev/fscklogs 0770 root system
 
-    # Permissions for system controls
-    chown radio system /sys/power/wake_lock
-    chown radio system /sys/power/wake_unlock
-    chmod 0660 /sys/power/state
-    chmod 0660 /sys/power/wake_lock
-    chmod 0660 /sys/power/wake_unlock
-
-    # CPU settings
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/*
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/*
-    chown system system /sys/class/leds/*/brightness
-    chown system system /sys/class/timed_output/vibrator/enable
-
-    # Set default TCP window size
-    setprop net.tcp.default_init_rwnd 60
-
-    class_start core
-
-on post-fs
-    mount rootfs rootfs / ro remount
-    mount rootfs rootfs / shared rec
-
-    # Cache permissions
-    chown system cache /cache
-    chmod 0770 /cache
-    restorecon_recursive /cache
-
-    # /proc permissions
-    chown root log /proc/vmallocinfo
-    chmod 0440 /proc/vmallocinfo
-    chown root log /proc/slabinfo
-    chmod 0440 /proc/slabinfo
-    chown root system /proc/kmsg
-    chmod 0440 /proc/kmsg
-
-on post-fs-data
-    # Data permissions
-    chown system system /data
-    chmod 0771 /data
-    restorecon /data
-
-    # Create misc directories
-    mkdir /data/misc 01771 system misc
-    mkdir /data/misc/wifi 0770 wifi wifi
-    mkdir /data/misc/vpn 0770 system vpn
-    mkdir /data/misc/adb 02750 system shell
-    mkdir /data/misc/keystore 0700 keystore keystore
-    
-    # WPA supplicant permissions
-    chmod 0660 /data/misc/wifi/wpa_supplicant.conf
-    
-    # Dalvik cache
-    mkdir /data/dalvik-cache 0771 root root
-
-    # Security contexts
-    restorecon_recursive /data
-    setprop selinux.reload_policy 1
-
-# Healthd handling
-on property:sys.boot_from_charger_mode=1
-    class_stop charger
-    trigger late-init
-
-# Property handling
-on load_all_props_action
-    load_all_props
-
-on firmware_mounts_complete
-    rm /dev/.booting
-
-# Boot sequence
 on late-init
     trigger early-fs
     trigger fs
@@ -162,7 +73,73 @@ on late-init
     trigger early-boot
     trigger boot
 
-# Services definition
+on post-fs
+    mount rootfs rootfs / ro remount
+    mount rootfs rootfs / shared rec
+    chown system cache /cache
+    chmod 0770 /cache
+    restorecon_recursive /cache
+    chmod 0444 /sys/fs/selinux/policy
+    mkdir /cache/lost+found 0770 root root
+
+on post-fs-data
+    chown system system /data
+    chmod 0771 /data
+    restorecon /data
+    copy /data/system/entropy.dat /dev/urandom
+    mkdir /data/dontpanic 0750 root log
+
+    # Data directories
+    mkdir /data/misc 01771 system misc
+    mkdir /data/misc/adb 02750 system shell
+    mkdir /data/misc/wifi 0770 wifi wifi
+    mkdir /data/local 0751 root root
+    mkdir /data/data 0771 system system
+    mkdir /data/app 0771 system system
+    mkdir /data/dalvik-cache 0771 root root
+    mkdir /data/security 0711 system system
+    setprop selinux.reload_policy 1
+    restorecon_recursive /data
+
+on boot
+    ifup lo
+    hostname localhost
+    domainname localdomain
+    setrlimit 13 40 40
+
+    # Memory management
+    write /proc/sys/vm/overcommit_memory 1
+    chown root system /sys/module/lowmemorykiller/parameters/adj
+    chmod 0220 /sys/module/lowmemorykiller/parameters/adj
+
+    # Power management
+    chown radio system /sys/android_power/state
+    chown system system /sys/power/wakeup_count
+    chown radio system /sys/power/wake_lock
+
+    # CPU governor controls
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+    chmod 0660 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+
+    # Hardware controls
+    chown system system /sys/class/timed_output/vibrator/enable
+    chown system system /sys/class/leds/lcd-backlight/brightness
+
+    class_start core
+
+on nonencrypted
+    class_start main
+    class_start late_start
+
+on charger
+    class_start charger
+
+on property:sys.powerctl=*
+    powerctl ${sys.powerctl}
+
+# Core system services
 service ueventd /sbin/ueventd
     class core
     critical
@@ -185,28 +162,49 @@ service lmkd /system/bin/lmkd
 
 service servicemanager /system/bin/servicemanager
     class core
-    user system
-    group system
     critical
-    onrestart restart healthd
     onrestart restart zygote
     onrestart restart surfaceflinger
+    onrestart restart audioserver
+    onrestart restart cameraserver
+
+service vold /system/bin/vold
+    class core
+    socket vold stream 0660 root mount
+
+service netd /system/bin/netd
+    class main
+    socket netd stream 0660 root system
 
 service surfaceflinger /system/bin/surfaceflinger
     class core
-    user system
-    group graphics drmrpc
     onrestart restart zygote
 
-# Add your device-specific services below
-# Example: service mydeviced /system/bin/mydeviced
-#    class main
-#    user root
-#    group root
+service zygote /system/bin/app_process -Xzygote /system/bin --zygote --start-system-server
+    class main
+    socket zygote stream 660 root system
+    onrestart write /sys/android_power/request_state wake
+    onrestart restart media
 
-# Property triggers
-on property:sys.powerctl=*
-    powerctl ${sys.powerctl}
+service media /system/bin/mediaserver
+    class main
+    user media
+    group audio camera drmrpc
 
-on charger
-    class_start charger
+service installd /system/bin/installd
+    class main
+    socket installd stream 600 system system
+
+service keystore /system/bin/keystore
+    class main
+    user keystore
+
+service audioserver /system/bin/audioserver
+    class main
+    user audioserver
+    group audio
+
+service cameraserver /system/bin/cameraserver
+    class main
+    user cameraserver
+    group camera

@@ -1,59 +1,36 @@
-# Inherit from the common stuff
-include device/hp/phobos/BoardConfigCommon.mk
-include device/nvidia/tegra-common/BoardConfigTegra.mk  # Caminho atualizado
-USE_CLANG_PLATFORM_BUILD := true
-TARGET_USE_CLANG := true
-# Define o init principal
-TARGET_INIT_VENDOR_LIB := //device/hp/phobos:libinit_dalmore
-TARGET_LD_SHIM_LIBS += /system/lib/libcnefeatureconfig.so|libc++_shared.so
-TARGET_IGNORE_MISSING_CNE := true
-# Define o fstab para recovery
-TARGET_RECOVERY_FSTAB := device/hp/phobos/rootdir/fstab.phobos
-TARGET_RECOVERY_INITRC := device/hp/phobos/rootdir/init.recovery.phobos.rc
+# Herda configurações comuns
+include device/hp/tegra4-common/BoardConfigCommon.mk
 
-# Define o ueventd
-TARGET_UEVENTD_RULES := device/hp/phobos/rootdir/ueventd.dalmore.rc
-BOARD_USES_NVIDIA_SHIELD_T40 := true
+# Configurações específicas do phobos
+PRODUCT_USE_PROFILE_FOR_BOOT_IMAGE := false
+WITH_DEXPREOPT := false
 
-# Platform
-TARGET_ARCH := arm
-TARGET_BOARD_PLATFORM := tegra4
-TARGET_POWERHAL_VARIANT := tegra4
-TARGET_TEGRA_VERSION := t114
-TARGET_CPU_ABI := armeabi-v7a
-TARGET_CPU_ABI2 := armeabi
-ARCH_ARM_HAVE_TLS_REGISTER := true
-TARGET_ARCH_VARIANT := armv7-a-neon
-TARGET_CPU_VARIANT := cortex-a15
-TARGET_CPU_VARIANT_RUNTIME := cortex-a15
+TARGET_INIT_VENDOR_RC := device/hp/phobos/rootdir/init.dalmore.rc
 
-# Kernel
-TARGET_KERNEL_SOURCE := kernel/hp/phobos
-TARGET_KERNEL_CONFIG := phobos_defconfig
-BOARD_KERNEL_IMAGE_NAME := zImage
-#TARGET_PREBUILT_KERNEL := device/hp/phobos/prebuilts/kernel
+# Bootloader
+TARGET_NO_BOOTLOADER := true
+TARGET_BOOTLOADER_BOARD_NAME := phobos
 
-# Boot image
-BOARD_BOOTIMG_HEADER_VERSION := 0
-BOARD_BOOTIMAGE_PARTITION_SIZE := 0x01000000
-BOARD_KERNEL_BASE := 0x10000000
-BOARD_KERNEL_PAGESIZE := 2048
-BOARD_RAMDISK_OFFSET := 0x01000000
-BOARD_SECOND_OFFSET := 0x00f00000
-BOARD_TAGS_OFFSET := 0x00000100
-BOARD_KERNEL_TAGS_OFFSET := 0x00000100
-BOARD_FLASH_BLOCK_SIZE := 131072
+# Kernel específico
+TARGET_PREBUILT_KERNEL := device/hp/phobos/zImage-dtb
+BOARD_KERNEL_IMAGE_NAME := zImage-dtb
+BOARD_KERNEL_CMDLINE := console=ttyS0,115200n8 androidboot.hardware=phobos \
+                        androidboot.bootdevice=sdhci-tegra.3 \
+                        tegraid=40.0.0.00.00 \
+                        vpr_resize \
+                        gpt \
+                        androidboot.selinux=permissive \
+                        firmware_class.path=/system/vendor/firmware
 
-# Indique que não há partição vendor separada
-BOARD_USES_VENDORIMAGE := false
-BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := none
+BOARD_KERNEL_SEPARATED_DT := false
 
-# Partições - VALORES FÍSICOS REAIS
-BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608        # 8MB
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 16777216   # 16MB
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 805306368    # 768MB
-BOARD_USERDATAIMAGE_PARTITION_SIZE := 5385142272 # ~5.02GB
-BOARD_CACHEIMAGE_PARTITION_SIZE := 1073741824    # 1GB
+# Partições
+BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 16777216
+BOARD_DTBIMAGE_PARTITION_SIZE := 4194304
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 805306368
+BOARD_CACHEIMAGE_PARTITION_SIZE := 1073741824
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 5385142272
 BOARD_FLASH_BLOCK_SIZE := 4096
 
 # Sistemas de arquivos
@@ -61,105 +38,84 @@ BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
 TARGET_USERIMAGES_USE_EXT4 := true
-TARGET_COPY_OUT_VENDOR := vendor
-
-# Device Tree Blob
-BOARD_PREBUILT_DTBIMAGE := device/hp/phobos/dtb.img
-BOARD_DTBIMAGE_PARTITION_SIZE := 4194304
-BOARD_INCLUDE_DTB_IN_BOOTIMG := false
 
 # Recovery
+BOARD_USES_FULL_RECOVERY_IMAGE := true
+TARGET_RECOVERY_ROOT_OUT := device/hp/phobos/recovery/root
+TARGET_RECOVERY_FSTAB := device/hp/phobos/rootdir/etc/fstab.dalmore
 TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
-BOARD_HAS_NO_SELECT_BUTTON := true
-BOARD_USE_CUSTOM_RECOVERY_FONT := \"roboto_15x24.h\"
+BOARD_USE_CUSTOM_RECOVERY_FONT := "roboto_15x24.h"
 
-# SELinux
-BOARD_USES_SEPOLICY := true
-BOARD_SEPOLICY_DIRS := device/nvidia/shield-common/sepolicy
+# system.prop
+TARGET_SYSTEM_PROP := device/hp/phobos/system.prop
 
-# Security
-TARGET_SYSTEM_PROP += device/hp/phobos/system.prop
-
-# GPU and graphics
-USE_OPENGL_RENDERER := true
-TARGET_USES_HWC2 := true
-BOARD_GPU_DRIVERS := tegra
-NUM_FRAMEBUFFER_SURFACE_BUFFERS := 2
-SF_PRIMARY_DISPLAY_ORIENTATION := 0
-TARGET_USES_ION := true
+# Configurações gráficas
+# Configurações de vídeo
 TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
-BOARD_EGL_WORKAROUND_BUG_10194508 := true
-BOARD_EGL_CFG := vendor/hp/phobos/proprietary/vendor/lib/egl/egl.cfg  # Caminho atualizado
-OVERRIDE_RS_DRIVER := libnvRS_driver.so
-BOARD_EGL_NEEDS_FNW := true
-TARGET_ADDITIONAL_GRALLOC_10_USAGE_BITS := 0x2000U
+BOARD_USE_BGRA_8888 := true
+TARGET_USES_HWC2 := false  # Tegra 4 não suporta HWC2
+USE_OPENGL_RENDERER := true
 
-# Audio
-USE_XML_AUDIO_POLICY_CONF := 1
-BOARD_USES_GENERIC_AUDIO := false
-BOARD_USES_ALSA_AUDIO := true
-BOARD_USES_TINY_ALSA_AUDIO := true
+# Desabilitar mesa3d
+BOARD_USE_MESA3D := false
 
 # Bluetooth
-BOARD_HAVE_BLUETOOTH := true
-BOARD_HAVE_BLUETOOTH_TI := true
-BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := vendor/nvidia/shield  # Caminho atualizado
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/hp/phobos/bluetooth
 
-# Camera
-USE_CAMERA_STUB := false
-TARGET_HAS_LEGACY_CAMERA_HAL1 := true
-TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
-
-# Wi-Fi
-BOARD_WLAN_DEVICE := bcmdhd
-WIFI_DRIVER_MODULE_PATH := "/system/lib/modules/dhd.ko"
+# Wi-Fi (caminhos atualizados para system/vendor)
+WIFI_DRIVER_MODULE_PATH := "/system/vendor/lib/modules/dhd.ko"
 WIFI_DRIVER_MODULE_NAME := "dhd"
 BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
-BOARD_HOSTAPD_PRIVATE_LIB   := lib_driver_cmd_bcmdhd
-WIFI_DRIVER_FW_PATH_PARAM   := "/sys/module/bcmdhd/parameters/firmware_path"
-WIFI_DRIVER_FW_PATH_STA     := "/vendor/firmware/fw_bcmdhd.bin"
-WIFI_DRIVER_FW_PATH_AP      := "/vendor/firmware/fw_bcmdhd_apsta.bin"
+BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_bcmdhd
+WIFI_DRIVER_FW_PATH_PARAM := "/sys/module/bcmdhd/parameters/firmware_path"
+WIFI_DRIVER_FW_PATH_STA := "/system/vendor/firmware/fw_bcmdhd.bin"
+WIFI_DRIVER_FW_PATH_AP := "/system/vendor/firmware/fw_bcmdhd_apsta.bin"
 
-# Misc
-TARGET_NO_RADIOIMAGE := true
-TARGET_NO_BOOTLOADER := true
-TARGET_NO_KERNEL := false
+# Tela
+TARGET_SCREEN_WIDTH := 1920
+TARGET_SCREEN_HEIGHT := 1080
 
-# Partitions
-BOARD_HAS_LARGE_FILESYSTEM := true
-BOARD_BUILD_SYSTEM_ROOT_IMAGE := false
-
-# Charger
+# Carregador
 BOARD_CHARGER_ENABLE_SUSPEND := true
 BOARD_CHARGER_DISABLE_INIT_BLANK := true
 
-# Gerenciamento de Energia
-TARGET_POWERHAL_VARIANT := tegra
+# BoardConfig.mk
 
-# Bootloader
-TARGET_BOOTLOADER_BOARD_NAME := phobos
+# ==================================================
+# 1. Configurações Treble (desabilitado)
+# ==================================================
+PRODUCT_FULL_TREBLE := false
+BOARD_VNDK_VERSION :=
 
-# Additional includes from ShieldTablet
-BOARD_PROPERTY_OVERRIDES_SPLIT_ENABLED := true
-TARGET_ENABLE_MEDIASERVER_64 := false
+# ==================================================
+# 2. Definições condicionais
+# ==================================================
+BOARD_SEPOLICY_M4DEFS := \
+    lineage_common=true \
+    enable_camera=true \
+    enable_graphics=true \
+    tegra_platform=true
 
-# Enable APEX
-TARGET_SUPPORTS_64_BIT_APPS := false
-TARGET_SUPPORTS_32_BIT_APPS := true
+# ==================================================
+# 3. Ordem de carregamento das políticas
+# ==================================================
+BOARD_SEPOLICY_DIRS := \
+    device/lineage/sepolicy/common \
+    device/hp/phobos/sepolicy
 
-# Zygote
-TARGET_CPU_VARIANT := cortex-a15
-TARGET_CPU_SMP := true
+# ==================================================
+# 4. Diretórios públicos/privados (configuração especial)
+# ==================================================
+# Para dispositivos não-Treble, use esta estrutura:
+BOARD_SEPOLICY_UNION := \
+    $(find device/hp/phobos/sepolicy/public -type f) \
+    $(find device/hp/phobos/sepolicy/private -type f) \
+    $(find device/lineage/sepolicy/common/public -type f) \
+    $(find device/lineage/sepolicy/common/private -type f)
 
-# Graphics + Vulkan
-TARGET_USES_GRALLOC1 := false
-
-# VNDK
-BOARD_VNDK_VERSION := current
-
-# Debugging
-TARGET_COMPILE_WITH_MSM_KERNEL := false
-BUILD_BROKEN_DUP_RULES := true
-BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
-HOST_GLOBAL_CFLAGS_x86 := -m32 -march=i686 -msse3 -mfpmath=sse
+# ==================================================
+# 5. Flags de desenvolvimento
+# ==================================================
+BOARD_SEPOLICY_IGNORE_NEVERALLOWS := true
+SELINUX_IGNORE_NEVERALLOWS := true
+TARGET_RECOVERY_SEPOLICY_IGNORE_NEVERALLOWS := true

@@ -1,0 +1,26 @@
+# LineageOS 15.1 Superuser Daemon
+# Path: /system/etc/init/init.lineage.superuser.rc
+
+service su_daemon /system/xbin/su --auto_daemon
+    class main
+    user root
+    group root system
+    seclabel u:r:su_daemon:s0
+    disabled
+    oneshot
+
+on property:persist.sys.root_access=0
+    stop su_daemon
+    setprop ctl.stop su_daemon
+
+on property:persist.sys.root_access=1
+    start su_daemon
+    setprop ctl.start su_daemon
+
+on property:persist.sys.root_access=3
+    start su_daemon
+    setprop ctl.start su_daemon
+
+on property:sys.boot_completed=1 && property:persist.sys.root_access=*
+    # Apply root access settings after boot completion
+    exec -- /system/bin/sh -c "if [ $(getprop persist.sys.root_access) -eq 1 ] || [ $(getprop persist.sys.root_access) -eq 3 ]; then /system/xbin/su --daemon; fi"

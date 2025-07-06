@@ -1,0 +1,15 @@
+type camera_hal, domain;
+type camera_hal_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(camera_hal)
+optional {
+    allow camera_hal camera_device:chr_file { read write open };
+    allow camera_hal video_device:chr_file { ioctl };
+    allow camera_hal tegra_camera_device:chr_file { read write };
+}
+type audio_hal, domain;
+type audio_hal_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(audio_hal)
+optional {
+    allow audio_hal spdif_device:chr_file { read write };
+    allow audio_hal tegra_audio_avpchannel_device:chr_file { open read };
+}

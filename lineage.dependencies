@@ -11,12 +11,7 @@
     "remote": "github",
     "branch": "lineage-15.1"
   },
-  {
-    "repository": "proprietary_vendor_nvidia",
-    "target_path": "vendor/nvidia",
-    "remote": "github",
-    "branch": "lineage-15.1"
-  },
+  
   {
     "repository": "proprietary_vendor_hp_phobos",
     "target_path": "vendor/hp/phobos",

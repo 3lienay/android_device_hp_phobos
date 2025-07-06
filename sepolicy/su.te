@@ -1,13 +1,11 @@
-type su, domain;
-type su_exec, exec_type, file_type;
-
+if !defined(`su_tmpfs_declared') then
+    define(`su_tmpfs_declared', `true')
+    type su_tmpfs, file_type;
+endif
 init_daemon_domain(su)
-
-allow su self:process { fork sigchld };
-allow su su_exec:file { execute getattr };
-
 neverallow {
     domain
     -su
-} su:process transition;
+} 
+su:process transition;
 neverallow * su:process dyntransition;

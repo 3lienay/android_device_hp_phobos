@@ -1,7 +1,0 @@
-# Android fstab file for HP Slate 21 (phobos) - ATUALIZADO COM SEUS BLOCOS REAIS
-#<src>                                  <mnt>       <type>  <mnt_flags>                  <fs_mgr_flags>
-/dev/block/mmcblk0p5                    /boot       emmc    defaults                     recoveryonly
-/dev/block/mmcblk0p6                    /system     ext4    ro,barrier=1                 wait,avb,logical
-/dev/block/mmcblk0p7                    /cache      ext4    noatime,nosuid,nodev         wait,check
-/dev/block/mmcblk0p12                   /data       ext4    noatime,nosuid,nodev         wait,check,encryptable=footer
-/dev/block/mmcblk0p11                   /vendor     ext4    ro,barrier=1                 wait

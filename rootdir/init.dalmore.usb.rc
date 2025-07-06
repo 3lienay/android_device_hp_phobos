@@ -1,0 +1,111 @@
+# USB configuration for NVIDIA Tegra 3 (dalmore) - LineageOS 15.1
+
+on init
+    # Set USB serial number
+    write /sys/class/android_usb/android0/iSerial ${ro.serialno}
+    
+    # RNDIS configuration
+    write /sys/class/android_usb/android0/f_rndis/manufacturer NVIDIA
+    write /sys/class/android_usb/android0/f_rndis/vendorID 0955
+    write /sys/class/android_usb/android0/f_rndis/wceis 1
+
+    # Default USB configuration
+    setprop sys.usb.configfs 1
+    setprop sys.usb.ffs.ready 0
+    setprop persist.sys.usb.config mtp,adb
+
+on boot
+    # Set USB manufacturer and product info
+    write /sys/class/android_usb/android0/iManufacturer ${ro.product.manufacturer}
+    write /sys/class/android_usb/android0/iProduct ${ro.product.model}
+    
+    # Initialize USB controller
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/bDeviceClass 0
+    write /sys/class/android_usb/android0/bDeviceSubClass 0
+    write /sys/class/android_usb/android0/bDeviceProtocol 0
+    write /sys/class/android_usb/android0/enable 1
+
+# Common USB configuration handler
+on property:sys.usb.config=*
+    # Disable USB before reconfiguration
+    write /sys/class/android_usb/android0/enable 0
+    
+    # Set default vendor/product IDs
+    write /sys/class/android_usb/android0/idVendor 0955
+    
+    # Handle different USB modes
+    if [ ${sys.usb.config} = "mtp" ] then
+        write /sys/class/android_usb/android0/idProduct 7102
+        write /sys/class/android_usb/android0/functions mtp
+    else if [ ${sys.usb.config} = "mtp,adb" ] then
+        write /sys/class/android_usb/android0/idProduct 7100
+        write /sys/class/android_usb/android0/functions mtp,adb
+        start adbd
+    else if [ ${sys.usb.config} = "rndis" ] then
+        write /sys/class/android_usb/android0/idProduct 7103
+        write /sys/class/android_usb/android0/functions rndis
+        write /sys/class/android_usb/android0/bDeviceClass 224
+    else if [ ${sys.usb.config} = "rndis,adb" ] then
+        write /sys/class/android_usb/android0/idProduct 7103
+        write /sys/class/android_usb/android0/functions rndis,adb
+        write /sys/class/android_usb/android0/bDeviceClass 224
+        start adbd
+    else if [ ${sys.usb.config} = "ptp" ] then
+        write /sys/class/android_usb/android0/idProduct 7102
+        write /sys/class/android_usb/android0/functions ptp
+    else if [ ${sys.usb.config} = "ptp,adb" ] then
+        write /sys/class/android_usb/android0/idProduct 7100
+        write /sys/class/android_usb/android0/functions ptp,adb
+        start adbd
+    else if [ ${sys.usb.config} = "adb" ] then
+        write /sys/class/android_usb/android0/idProduct 7104
+        write /sys/class/android_usb/android0/functions adb
+        start adbd
+    else
+        # Charging only mode
+        write /sys/class/android_usb/android0/idProduct 7105
+        write /sys/class/android_usb/android0/functions none
+    fi
+    
+    # Enable USB with new configuration
+    write /sys/class/android_usb/android0/enable 1
+    setprop sys.usb.state ${sys.usb.config}
+    setprop sys.usb.ffs.ready 1
+
+# Additional USB modes for Android 8.1
+on property:sys.usb.config=midi
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 0955
+    write /sys/class/android_usb/android0/idProduct 7106
+    write /sys/class/android_usb/android0/functions midi
+    write /sys/class/android_usb/android0/enable 1
+    setprop sys.usb.state ${sys.usb.config}
+
+on property:sys.usb.config=midi,adb
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 0955
+    write /sys/class/android_usb/android0/idProduct 7107
+    write /sys/class/android_usb/android0/functions midi,adb
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+
+# Handle USB configuration changes
+on property:sys.usb.config=*
+    # Wait for FFS to be ready if needed
+    if [ ${sys.usb.config} = *"adb"* ] then
+        start adbd
+    fi
+    
+    # Update USB state property
+    setprop sys.usb.state ${sys.usb.config}
+
+# ADB service control
+on property:service.adb.root=1
+    write /sys/class/android_usb/android0/functions ${sys.usb.config},adb
+    restart adbd
+
+on property:service.adb.root=0
+    write /sys/class/android_usb/android0/functions ${sys.usb.config}
+    restart adbd

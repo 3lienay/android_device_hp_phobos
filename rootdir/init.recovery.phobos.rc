@@ -85,4 +85,4 @@ on boot
 
 # Fstab para recovery
 on fs
-    mount_all /fstab.phobos
+    mount_all /fstab.dalmore

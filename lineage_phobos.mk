@@ -1,59 +1,42 @@
-# Inherit full device configuration
+# Herda configuração completa do dispositivo
 $(call inherit-product, device/hp/phobos/device.mk)
 
-# Inherit common LineageOS tablet configuration
-$(call inherit-product, vendor/lineage/config/common_full_tablet_wifionly.mk)
-
-# Override inherited variables
+# Sobrescreve variáveis herdadas
 PRODUCT_NAME := lineage_phobos
 PRODUCT_DEVICE := phobos
 PRODUCT_BRAND := HP
 PRODUCT_MANUFACTURER := Hewlett-Packard
 PRODUCT_MODEL := Slate 21
 
-# Device characteristics
-PRODUCT_CHARACTERISTICS := tablet
+# Propriedades específicas do LineageOS
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    ro.cwm.enable_key_repeat=true \
+    drm.service.enabled=true \
+    ro.lineage.device=phobos \
+    ro.adb.secure=0 \
+    ro.tegracore.setupwizard=false
 
-# AAPT configurations
+# Configurações AAPT (otimizadas) - Mantido pois são específicas para este build
 PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := mdpi
 PRODUCT_AAPT_PREBUILT_DPI := mdpi hdpi
 
-# System properties
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.lineage.device=phobos \
-    ro.sf.lcd_density=240 \
-    ro.adb.secure=0 \
-    ro.radio.noril=yes \
-    ro.crypto.volume.filenames_mode=aes-256-cts \
-    ro.config.low_ram=false
-
-# Default locales
+# Locais padrão
 PRODUCT_LOCALES := en_US
 
-# Multi-user support
+# Suporte multi-usuário
 PRODUCT_PROPERTY_OVERRIDES += \
     fw.max_users=8 \
     fw.show_multiuserui=1
 
-# Dexpreopt optimizations
+# Otimizações Dexpreopt
 WITH_DEXPREOPT := true
-WITH_DEXPREOPT_BOOT_IMG_AND_SYSTEM_SERVER_ONLY := false
+WITH_DEXPREOPT_BOOT_IMG_AND_SYSTEM_SERVER_ONLY := true
 
-# Essential packages
-PRODUCT_PACKAGES += \
-    Updater \
-    LineageParts \
-    LineageSettingsProvider
-
-# NVIDIA Tegra specific fixes
-PRODUCT_COPY_FILES := \
-    $(filter-out %/init.tegra.rc %/audio_policy.conf, $(PRODUCT_COPY_FILES))
-
-# Treble support
-PRODUCT_FULL_TREBLE_OVERRIDE := true
-PRODUCT_VENDOR_MOVE_ENABLED := true
-
-# Security patch level
+# Nível de patch de segurança
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.build.version.security_patch=$(PLATFORM_SECURITY_PATCH)
+
+# Set default USB interface
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.sys.usb.config=mtp

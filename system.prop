@@ -1,35 +1,145 @@
+# begin build properties
+ro.build.id=OPM7.181205.001
+ro.build.display.id=lineage_phobos-userdebug 8.1.0 OPM7.181205.001 eng.user.20230101.120000 test-keys
+ro.build.version.incremental=eng.user.20230101.120000
+ro.build.version.sdk=27
+ro.build.version.codename=REL
+ro.build.version.all_codenames=REL
+ro.build.version.release=8.1.0
+ro.build.date=Sun Jan  1 12:00:00 UTC 2023
+ro.build.date.utc=1672574400
+ro.build.type=userdebug
+ro.build.user=lineage
+ro.build.host=lineage-build
+ro.build.tags=test-keys
+ro.build.flavor=lineage_phobos-userdebug
+ro.product.brand=lineage
+ro.product.name=lineage_phobos
+ro.product.board=dalmore
+ro.product.cpu.abilist=armeabi-v7a,armeabi
+ro.product.cpu.abilist32=armeabi-v7a,armeabi
+ro.product.cpu.abilist64=
+ro.product.manufacturer=Hewlett-Packard
+ro.product.locale=en-US
+ro.wifi.channels=
+ro.board.platform=tegra4
+ro.build.product=phobos
+ro.product.model=Slate 21
+ro.product.device=phobos
+ro.build.description=lineage_phobos-userdebug 8.1.0 OPM7.181205.001 eng.user.20230101.120000 test-keys
+ro.build.fingerprint=lineage/phobos/phobos:8.1.0/OPM7.181205.001/user01011200:userdebug/test-keys
+ro.build.characteristics=tablet
+ro.lineage.device=phobos
+
+# device-specific properties
 drm.service.enabled=true
-ro.opengles.version = 131072
+ro.opengles.version=196610
 wifi.interface=wlan0
 ap.interface=wlan0
 ro.sf.lcd_density=160
 
-# from dalmore, check nvidia
-persist.tegra.nvmmlite = 1
-
-# use glcomposer as the default compositor
+# nvidia tegra properties
+persist.tegra.nvmmlite=1
 persist.tegra.compositor=glcomposer
 
-# disable EGL_BUFFER_PRESERVED extension for OpenGLRenderer
-debug.hwui.render_dirty_regions=false
-
-# Root access control:
-# 0 = disabled, 1 = apps only, 2 = ADB only, 3 = enabled
-persist.sys.root_access=0
-
 # hwui parameters
-ro.hwui.texture_cache_size=48.0
-ro.hwui.layer_cache_size=32.0
-ro.hwui.gradient_cache_size=0.8
-ro.hwui.path_cache_size=24.0
-ro.hwui.shape_cache_size=3.0
-ro.hwui.drop_shadow_cache_size=4.0
+ro.hwui.texture_cache_size=72
+ro.hwui.layer_cache_size=48
+ro.hwui.gradient_cache_size=1.0
+ro.hwui.path_cache_size=32
+ro.hwui.shape_cache_size=4
+ro.hwui.drop_shadow_cache_size=6
 ro.hwui.text_small_cache_width=1024
-ro.hwui.text_small_cache_height=512
+ro.hwui.text_small_cache_height=1024
 ro.hwui.text_large_cache_width=2048
-ro.hwui.text_large_cache_height=1024
+ro.hwui.text_large_cache_height=2048
 ro.hwui.texture_cache_flushrate=0.6
 
-# don't preload OpenGL in Zygote, the Tegra drivers do not like it
+# zygote configuration
+ro.zygote=zygote32
 ro.zygote.disable_gl_preload=true
-ro.hardware.egl = tegra
+
+#
+# ADDITIONAL BUILD PROPERTIES
+#
+ro.com.android.dateformat=MM-dd-yyyy
+ro.carrier=unknown
+persist.sys.isUsbOtgEnabled=true
+
+# memory management
+dalvik.vm.heapstartsize=16m
+dalvik.vm.heapgrowthlimit=128m
+dalvik.vm.heapsize=512m
+dalvik.vm.heaptargetutilization=0.75
+dalvik.vm.heapminfree=2m
+dalvik.vm.heapmaxfree=8m
+
+# google and lineage properties
+ro.com.google.clientidbase=android-google
+ro.url.legal=http://www.google.com/intl/%s/mobile/android/basic/phone-legal.html
+ro.url.legal.android_privacy=http://www.google.com/intl/%s/mobile/android/basic/privacy.html
+ro.lineage.version=15.1-20230101-UNOFFICIAL-phobos
+ro.modversion=15.1-20230101-UNOFFICIAL-phobos
+ro.lineagelegal.url=https://lineageos.org/legal
+
+# system configuration
+keyguard.no_require_sim=true
+ro.setupwizard.enterprise_mode=1
+ro.com.android.dataroaming=false
+ro.build.selinux=1
+persist.sys.dun.override=0
+ro.config.notification_sound=Argon.ogg
+ro.config.alarm_alert=Helium.ogg
+
+# art/runtime properties
+dalvik.vm.dex2oat-filter=quicken
+dalvik.vm.image-dex2oat-filter=speed
+dalvik.vm.dex2oat-threads=4
+dalvik.vm.image-dex2oat-threads=4
+
+# performance settings
+debug.sf.hw=1
+debug.performance.tuning=1
+
+# network
+net.bt.name=Android
+dalvik.vm.stack-trace-file=/data/anr/traces.txt
+
+#
+# ADDITIONAL_DEFAULT_PROPERTIES (LineageOS 15.1)
+#
+ro.adb.secure=1
+ro.secure=1
+ro.allow.mock.location=0
+ro.debuggable=1
+persist.sys.usb.config=mtp,adb
+
+# dex2oat memory settings
+dalvik.vm.dex2oat-Xms=64m
+dalvik.vm.dex2oat-Xmx=512m
+dalvik.vm.image-dex2oat-Xms=64m
+dalvik.vm.image-dex2oat-Xmx=64m
+
+# native bridge (ARM x86 translation)
+ro.dalvik.vm.native.bridge=0
+
+# treble compatibility
+ro.treble.enabled=false
+
+# sdcardfs filesystem
+ro.sys.sdcardfs=true
+
+# debug settings
+persist.service.adb.enable=1
+persist.service.debuggable=1
+persist.sys.usb.config=mtp,adb
+
+# Forçar uso dos drivers Tegra
+ro.hardware.egl=tegra
+ro.hardware.gralloc=tegra
+ro.hardware.hwcomposer=tegra
+
+# Configurações específicas do OpenGL
+debug.egl.profiler=1
+debug.sf.no_hw_vsync=0
+debug.performance.tuning=1
