@@ -1,11 +1,10 @@
-if !defined(`su_tmpfs_declared') then
-    define(`su_tmpfs_declared', `true')
-    type su_tmpfs, file_type;
-endif
 init_daemon_domain(su)
+
 neverallow {
     domain
     -su
-} 
+}
+
 su:process transition;
+
 neverallow * su:process dyntransition;

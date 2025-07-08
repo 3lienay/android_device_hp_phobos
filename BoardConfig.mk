@@ -1,17 +1,15 @@
-# Herda configurações comuns
 include device/hp/tegra4-common/BoardConfigCommon.mk
 
-# Configurações específicas do phobos
 PRODUCT_USE_PROFILE_FOR_BOOT_IMAGE := false
 WITH_DEXPREOPT := false
-
+ANDROID_COMPILE_WITH_JACK := false
 TARGET_INIT_VENDOR_RC := device/hp/phobos/rootdir/init.dalmore.rc
 
 # Bootloader
 TARGET_NO_BOOTLOADER := true
 TARGET_BOOTLOADER_BOARD_NAME := phobos
 
-# Kernel específico
+# Kernel
 TARGET_PREBUILT_KERNEL := device/hp/phobos/zImage-dtb
 BOARD_KERNEL_IMAGE_NAME := zImage-dtb
 BOARD_KERNEL_CMDLINE := console=ttyS0,115200n8 androidboot.hardware=phobos \
@@ -23,8 +21,9 @@ BOARD_KERNEL_CMDLINE := console=ttyS0,115200n8 androidboot.hardware=phobos \
                         firmware_class.path=/system/vendor/firmware
 
 BOARD_KERNEL_SEPARATED_DT := false
+BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 
-# Partições
+# Partitions
 BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608
 BOARD_RECOVERYIMAGE_PARTITION_SIZE := 16777216
 BOARD_DTBIMAGE_PARTITION_SIZE := 4194304
@@ -33,7 +32,7 @@ BOARD_CACHEIMAGE_PARTITION_SIZE := 1073741824
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 5385142272
 BOARD_FLASH_BLOCK_SIZE := 4096
 
-# Sistemas de arquivos
+# File Systems
 BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
@@ -49,20 +48,19 @@ BOARD_USE_CUSTOM_RECOVERY_FONT := "roboto_15x24.h"
 # system.prop
 TARGET_SYSTEM_PROP := device/hp/phobos/system.prop
 
-# Configurações gráficas
-# Configurações de vídeo
+# Graphics
 TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
 BOARD_USE_BGRA_8888 := true
 TARGET_USES_HWC2 := false  # Tegra 4 não suporta HWC2
 USE_OPENGL_RENDERER := true
 
-# Desabilitar mesa3d
+# Mesa3D
 BOARD_USE_MESA3D := false
 
 # Bluetooth
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/hp/phobos/bluetooth
 
-# Wi-Fi (caminhos atualizados para system/vendor)
+# Wi-Fi
 WIFI_DRIVER_MODULE_PATH := "/system/vendor/lib/modules/dhd.ko"
 WIFI_DRIVER_MODULE_NAME := "dhd"
 BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
@@ -75,20 +73,18 @@ WIFI_DRIVER_FW_PATH_AP := "/system/vendor/firmware/fw_bcmdhd_apsta.bin"
 TARGET_SCREEN_WIDTH := 1920
 TARGET_SCREEN_HEIGHT := 1080
 
-# Carregador
+# Charger
 BOARD_CHARGER_ENABLE_SUSPEND := true
 BOARD_CHARGER_DISABLE_INIT_BLANK := true
 
-# BoardConfig.mk
-
 # ==================================================
-# 1. Configurações Treble (desabilitado)
+# Treble Configs (non-Treble device)
 # ==================================================
 PRODUCT_FULL_TREBLE := false
 BOARD_VNDK_VERSION :=
 
 # ==================================================
-# 2. Definições condicionais
+# SELinux
 # ==================================================
 BOARD_SEPOLICY_M4DEFS := \
     lineage_common=true \
@@ -96,26 +92,6 @@ BOARD_SEPOLICY_M4DEFS := \
     enable_graphics=true \
     tegra_platform=true
 
-# ==================================================
-# 3. Ordem de carregamento das políticas
-# ==================================================
-BOARD_SEPOLICY_DIRS := \
-    device/lineage/sepolicy/common \
-    device/hp/phobos/sepolicy
-
-# ==================================================
-# 4. Diretórios públicos/privados (configuração especial)
-# ==================================================
-# Para dispositivos não-Treble, use esta estrutura:
-BOARD_SEPOLICY_UNION := \
-    $(find device/hp/phobos/sepolicy/public -type f) \
-    $(find device/hp/phobos/sepolicy/private -type f) \
-    $(find device/lineage/sepolicy/common/public -type f) \
-    $(find device/lineage/sepolicy/common/private -type f)
-
-# ==================================================
-# 5. Flags de desenvolvimento
-# ==================================================
 BOARD_SEPOLICY_IGNORE_NEVERALLOWS := true
 SELINUX_IGNORE_NEVERALLOWS := true
 TARGET_RECOVERY_SEPOLICY_IGNORE_NEVERALLOWS := true
